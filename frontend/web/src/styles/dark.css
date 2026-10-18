@@ -1,0 +1,72 @@
+/* RAWA Dark Mode — surface tokens for a dark UI. */
+:root[data-theme="dark"] {
+  --bg: #14121f;
+  --surface: #1c192b;
+  --surface-2: #242036;
+  --surface-3: #2c2741;
+  --text: #e8e4f0;
+  --muted: #9a94a8;
+  --muted-deco: #7a7494;
+  --border: #2a2540;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .30);
+
+  --ok: #3fb950; --ok-bg: #1a2e22;
+  --warn: #d29922; --warn-bg: #332b16;
+  --orange: #e6a817; --orange-bg: #3a2d11;
+  --danger: #f85149; --danger-bg: #391f1f;
+  --neutral: #a8a2b8; --neutral-bg: #26233a;
+  --info: #7aa2f7; --info-bg: #1e2440;
+
+  --primary-light: #3b3163;
+  --card-overlay: rgba(255, 255, 255, .055);
+  --dialog-overlay: rgba(10, 8, 18, .72);
+
+  --kpi-bg: #161327;
+  --kpi-border: #2a2540;
+
+  --patient-bg: #0e0b1a;
+  --patient-glass: rgba(255, 255, 255, .06);
+  --patient-glass-2: rgba(255, 255, 255, .035);
+  --patient-search-bg: #1a172c;
+  --patient-wave: #0b0914;
+
+  --nav-bg: #161327;
+  --nav-border: #2a2540;
+  --sidebar-bg: #0f0c1c;
+  --sidebar-hover: #272140;
+  --sidebar-active: #3b3163;
+
+  --demo-banner-bg: #10102a;
+  --demo-banner-text: #e8e4f0;
+  --notif-dot: #f0b429;
+
+  --kbd-bg: #242036;
+  --kbd-border: #332c4c;
+
+  --shadow-stone: rgba(0, 0, 0, .35);
+
+  --tab-bg: #161327;
+  --tab-border: #2a2540;
+  --tab-text: #9a94a8;
+  --tab-selected-bg: #3b3163;
+  --tab-selected-text: #ffffff;
+
+  --chip-bg: #242036;
+  --chip-border: #332c4c;
+  --chip-text: #e8e4f0;
+
+  --bubble-bot-bg: #1a172c;
+  --bubble-bot-border: #332c4c;
+
+  --separator: #2a2540;
+
+  --card-bg: var(--surface);
+  --card-border: var(--border);
+  --card-shadow: var(--shadow);
+
+  --bg-grad-1: #161327;
+  --bg-grad-2: #0f0c1c;
+
+  --topbar-bg: #0f0c1c;
+  --topbar-border: #2a2540;
+}

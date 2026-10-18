@@ -1,0 +1,25 @@
+:root {
+  /* RAWA identity (from the original prototype) */
+  --bg: #f3f2fa;
+  --surface: #ffffff;
+  --primary: #8a74f9;
+  --primary-strong: #6b54e0;      /* darker variant for text/buttons: AA contrast on white */
+  --primary-light: #ebe7ff;
+  --text: #2d264b;
+  --muted: #6b6480;               /* AA on white; the prototype's #9a94a8 is kept for decoration only */
+  --muted-deco: #9a94a8;
+  --border: #e4e0f3;
+  /* status */
+  --ok: #157a3d;  --ok-bg: #dcfce7;
+  --warn: #92600a; --warn-bg: #fef3c7;
+  --orange: #a3470c; --orange-bg: #ffedd5;
+  --danger: #b42318; --danger-bg: #fee2e2;
+  --neutral: #5b5670; --neutral-bg: #eeecf5;
+  --info: #3b5bdb; --info-bg: #e3e9ff;
+  /* spacing / shape */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --radius: 16px; --radius-sm: 10px; --shadow: 0 1px 2px rgba(45, 38, 75, .06), 0 4px 16px rgba(45, 38, 75, .05);
+  --font: "IBM Plex Sans Arabic", "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-ko: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
