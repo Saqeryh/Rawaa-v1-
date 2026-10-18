@@ -62,7 +62,31 @@ RAWA_API=http://127.0.0.1:8000/api/v1 npm run test:e2e
 
 ## Deployment
 
-### Frontend (Vercel)
+### Vercel Multi-Services (Recommended)
+
+A root-level `vercel.json` is configured for Vercel's Multi-Services architecture:
+
+- **backend** service (root: `backend`, Python/FastAPI) - handles API routes under `/api/*`
+- **web** service (root: `frontend/web`, Vite/React) - serves the frontend application
+- Internal binding `BACKEND_PRIVATE_URL` connects web to backend securely
+- Routes: `/api/(.*)` → backend, `/(.*)` → web (SPA fallback)
+
+**Environment Variables (Vercel):**
+- Backend service: `DATABASE_URL`, `APP_ENV=production`, `CORS_ORIGINS`, `SEED_ON_START`, etc.
+- Web service: `VITE_API_URL` (set to `/api/v1` or use relative paths; client-side requests go through `/api/`)
+
+**Runtime usage:**
+- Client-side (browser): Use relative `/api/*` paths - the frontend API client already defaults to `/api/v1`.
+- Server-side (if needed): Use `process.env.BACKEND_PRIVATE_URL` for internal service-to-service calls.
+
+**Local Testing with Vercel CLI:**
+```bash
+vercel dev --debug
+```
+
+### Alternative: Separate Deployments
+
+#### Frontend (Vercel)
 1. Push this repository to GitHub.
 2. Import the project in [Vercel](https://vercel.com/).
 3. Set Root Directory to `frontend/web`.
@@ -72,9 +96,9 @@ RAWA_API=http://127.0.0.1:8000/api/v1 npm run test:e2e
 7. Add environment variables:
    - `VITE_API_URL`: URL of your deployed backend API (e.g., `https://your-backend.onrender.com/api/v1`)
 
-The frontend uses React Router; Vercel will need SPA routing. The Vite build output works with Vercel's default configuration for SPA - add a `vercel.json` in `frontend/web` if needed for rewrites.
+The frontend uses React Router; Vercel will need SPA routing. The Vite build output works with Vercel's default configuration for SPA.
 
-### Backend
+#### Backend
 SQLite file-based databases are not persistent in serverless environments. For production deployment, use a managed PostgreSQL database and set `DATABASE_URL` accordingly.
 
 Recommended hosting options: [Render](https://render.com/), [Railway](https://railway.app/), [Fly.io](https://fly.io/), or [Heroku](https://www.heroku.com/). Vercel can run Python serverless functions but may have limitations for long-running processes; consider the requirements.

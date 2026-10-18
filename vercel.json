@@ -1,0 +1,40 @@
+{
+  "services": [
+    {
+      "name": "backend",
+      "root": "backend",
+      "framework": "python",
+      "build": {
+        "command": "pip install -r requirements.txt"
+      },
+      "runtime": "python3.11"
+    },
+    {
+      "name": "web",
+      "root": "frontend/web",
+      "framework": "vite",
+      "build": {
+        "command": "npm run build",
+        "outputDirectory": "dist"
+      },
+      "runtime": "nodejs20.x",
+      "bindings": [
+        {
+          "name": "BACKEND_PRIVATE_URL",
+          "service": "backend",
+          "format": "url"
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "web"
+    }
+  ]
+}
