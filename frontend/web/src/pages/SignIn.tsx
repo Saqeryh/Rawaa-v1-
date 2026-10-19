@@ -18,23 +18,36 @@ export default function SignIn({ role }: { role: "doctor" | "patient" }) {
   const [failed, setFailed] = useState(false);
 
   // Dev-only convenience: fetch each demo patient's display name with that patient's own token.
+  // استخراج الكائن الداخلي بأمان سواء كان tokens مغلفاً بـ data أو مفكوكاً
+  const tokenData = (tokens as any)?.data || tokens;
+
+  // Dev-only convenience: fetch each demo patient's display name with that patient's own token.
   useEffect(() => {
-    if (role !== "patient" || !tokens) return;
+    if (role !== "patient" || !tokenData?.patients) return;
     let cancelled = false;
-    Promise.all(Object.entries(tokens.patients).map(async ([id, tok]) => {
-      try { return [id, (await api.patient(tok, id)).data.display_name] as const; } catch { return [id, ""] as const; }
+    Promise.all(Object.entries(tokenData.patients).map(async ([id, tok]) => {
+      try { return [id, (await api.patient(tok as string, id)).data.display_name] as const; } catch { return [id, ""] as const; }
     })).then((pairs) => { if (!cancelled) setNames(Object.fromEntries(pairs)); });
     return () => { cancelled = true; };
-  }, [role, tokens]);
+  }, [role, tokenData]);
 
   const go = () => {
-    if (!tokens) return;
-    if (role === "doctor") { signIn({ role: "doctor", token: tokens.doctor }); nav("/doctor"); return; }
-    const tok = tokens.patients[choice];
+    if (!tokenData) return;
+    const doctorToken = tokenData.doctor;
+    if (role === "doctor") { 
+      if (doctorToken) {
+        signIn({ role: "doctor", token: doctorToken }); 
+        nav("/doctor"); 
+      }
+      return; 
+    }
+    const tok = tokenData.patients?.[choice];
     if (!tok) { setFailed(true); return; }
-    signIn({ role: "patient", token: tok, patientId: choice }); nav("/patient");
+    signIn({ role: "patient", token: tok, patientId: choice }); 
+    nav("/patient");
   };
 
+ 
   return (
     <>
       <DemoBanner />
