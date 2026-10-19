@@ -26,9 +26,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="RAWA | ThrombiX API (demo)", version="0.1.0", lifespan=lifespan,
               description="Research and demonstration prototype. Synthetic data only. Not for clinical use.")
-app.add_middleware(CORSMiddleware, allow_origins=get_settings().cors_origins, allow_methods=["*"], allow_headers=["*"])
+origins = list(get_settings().cors_origins) + [
+    "https://rawaa-v1-two.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 def _err(status: int, code: str, message, details=None):
     return JSONResponse(status_code=status, content={"data": None, "meta": None,
                         "error": {"code": code, "message": message, "details": details}})
