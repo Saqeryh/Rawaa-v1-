@@ -26,15 +26,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="RAWA | ThrombiX API (demo)", version="0.1.0", lifespan=lifespan,
               description="Research and demonstration prototype. Synthetic data only. Not for clinical use.")
-origins = list(get_settings().cors_origins) + [
-    "https://rawaa-v1-two.vercel.app",
-    "http://localhost:5173",
-    "http://localhost:3000",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
+    # قبول أي نطاق ينتهي بـ vercel.app تلقائياً
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
