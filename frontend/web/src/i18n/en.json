@@ -342,7 +342,12 @@
     "demographics": "Patient demographics",
     "ageDistribution": "Age distribution",
     "demoFields": "Gender, department and geographic fields do not exist in this demo backend, so they are not displayed.",
-    "biomarkerOverview": "Biomarker overview"
+    "biomarkerOverview": "Biomarker overview",
+    "greeting": "Hello, Doctor \ud83d\udc4b",
+    "subtitle": "Track your monitoring indicators and review clinical outcomes.",
+    "export": "Export report",
+    "focusPatient": "Patient for charts",
+    "range": "Displayed period"
   },
   "patients": {
     "title": "Patients",
@@ -565,7 +570,15 @@
     "wearableNote": "Connection changes are simulated from the doctor dashboard’s simulation panel.",
     "privacy": "Privacy",
     "privacyText": "This demo shows synthetic data only. No real personal or health data is collected. Development sign-in is not real authentication.",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "account": "Account",
+    "role": "Signed in as",
+    "roleDoctor": "Clinician (development sign-in)",
+    "demoNote": "This dashboard uses the development sign-in with demo tokens \u2014 not real authentication."
   },
   "kpi": {
     "section": "Key performance indicators",
@@ -578,6 +591,31 @@
     "underMonitoring": "Patients under monitoring",
     "noBackend": "No source for this indicator exists in the current backend — placeholder only, not a measured value.",
     "monitoringShare": "{active} of {total} patients with active monitoring"
+  },
+  "priority": {
+    "cardTitle": "Priority case",
+    "cardSub": "Highest-priority patient in the monitoring list",
+    "liveTag": "Under live monitoring",
+    "openFile": "Open clinical file",
+    "noPriority": "No patient is in the monitoring list yet."
+  },
+  "queue": {
+    "cardTitle": "Triage queue",
+    "cardSub": "Ordered by risk classification",
+    "openAll": "Open patient list",
+    "empty": "No patients in the queue.",
+    "today": "Today"
+  },
+  "cal": {
+    "title": "Alerts calendar",
+    "prev": "Previous month",
+    "next": "Next month",
+    "monthTotal": "{n} alerts this month",
+    "monthOpen": "{n} open",
+    "ackShare": "Acknowledged",
+    "selectDay": "Select a day to see its alerts.",
+    "noAlertsDay": "No alerts on this day.",
+    "recentNote": "Built from the latest alerts received from the API."
   },
   "critical": {
     "title": "Critical cases",

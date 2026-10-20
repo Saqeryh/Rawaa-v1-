@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef, type ReactNode } from "react";
 import { ApiError } from "../api/client";
 import { useI18n, type TFn } from "../i18n";
+import { useTheme } from "../hooks/useTheme";
 
 export function Card({ title, actions, children, className = "", tight = false, id, "aria-label": ariaLabel }: { title?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string; tight?: boolean; id?: string; "aria-label"?: string }) {
   const titleId = useId();
@@ -36,48 +37,35 @@ export function EmptyState({ children }: { children?: ReactNode }) {
   return <div className="empty" role="note">{children ?? t("common.empty")}</div>;
 }
 
-/** Theme toggle button: switches light/dark by toggling html data-theme attribute */
-export function ThemeToggle({ busy }: { busy?: boolean }) {
-  const [isDark, setIsDark] = React.useState(() => {
-    // Check for persisted preference or default to light
-    const html = document.documentElement;
-    return html.getAttribute("data-theme") === "dark";
-  });
-  
-  React.useEffect(() => {
-    const html = document.documentElement;
-    if (isDark) {
-      html.setAttribute("data-theme", "dark");
-      html.style.colorScheme = "dark";
-    } else {
-      html.removeAttribute("data-theme");
-      html.style.colorScheme = "light";
-    }
-  }, [isDark]);
-  
+const SunIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
+    <circle cx={12} cy={12} r={4} />
+    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" />
+  </svg>
+);
+const MoonIcon = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+  </svg>
+);
+
+/** Theme toggle: persists the choice (localStorage) and switches the whole UI by toggling <html data-theme>. */
+export function ThemeToggle({ busy, variant = "pill" }: { busy?: boolean; variant?: "pill" | "icon" }) {
+  const { t } = useI18n();
+  const { isDark, toggle } = useTheme();
+  const next = isDark ? t("settings.themeLight") : t("settings.themeDark");
+  const label = `${t("settings.theme")}: ${next}`;
+  if (variant === "icon") {
+    return (
+      <button className="theme-icon-btn" onClick={toggle} title={label} aria-label={label} disabled={busy} aria-pressed={isDark}>
+        {isDark ? <SunIcon /> : <MoonIcon />}
+      </button>
+    );
+  }
   return (
-    <button
-      className="btn sm"
-      onClick={() => setIsDark(!isDark)}
-      title={"Toggle dark mode"}
-      disabled={busy}
-      aria-pressed={isDark}
-      style={{}}
-    >
-      <svg
-        width={18}
-        height={18}
-        viewBox={isDark ? "0 0 24 24" : "0 0 24 24"}
-        fill={isDark ? "none" : "none"}
-        stroke={isDark ? "currentColor" : "currentColor"}
-      >
-        {isDark ? (
-          <path d="M12 3v5M5 12h5M19 19l-5-5M5 5l5 5" />
-        ) : (
-          <path d="M12 12hM5 12vM12 5hM12 19l5 5M19 5l-5 5" />
-        )}
-      </svg>
-      {isDark ? "Light" : "Dark"}
+    <button className="btn sm" onClick={toggle} title={label} disabled={busy} aria-pressed={isDark}>
+      {isDark ? <SunIcon /> : <MoonIcon />}
+      {next}
     </button>
   );
 }

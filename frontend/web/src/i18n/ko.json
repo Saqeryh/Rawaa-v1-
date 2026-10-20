@@ -342,7 +342,12 @@
     "demographics": "환자 인구 통계",
     "ageDistribution": "연령 분포",
     "demoFields": "성별, 진료과, 지역 정보는 이 데모 백엔드에 존재하지 않아 표시되지 않습니다.",
-    "biomarkerOverview": "바이오마커 개요"
+    "biomarkerOverview": "바이오마커 개요",
+    "greeting": "안녕하세요, 의사 선생님 \ud83d\udc4b",
+    "subtitle": "모니터링 지표를 추적하고 임상 결과를 검토하세요.",
+    "export": "보고서 내보내기",
+    "focusPatient": "차트 대상 환자",
+    "range": "표시 기간"
   },
   "patients": {
     "title": "환자",
@@ -565,7 +570,15 @@
     "wearableNote": "연결 변경은 의사 대시보드의 시뮬레이션 패널에서 시뮬레이션됩니다.",
     "privacy": "개인정보",
     "privacyText": "이 데모는 가상 데이터만 표시합니다. 실제 개인 또는 건강 정보는 수집되지 않습니다. 개발용 로그인은 실제 인증이 아닙니다.",
-    "logout": "로그아웃"
+    "logout": "로그아웃",
+    "appearance": "화면 및 테마",
+    "theme": "테마",
+    "themeLight": "밝게",
+    "themeDark": "어둡게",
+    "account": "계정",
+    "role": "로그인 역할",
+    "roleDoctor": "임상의 (개발 로그인)",
+    "demoNote": "이 대시보드는 데모 토큰을 사용하는 개발용 로그인을 사용하며 실제 인증이 아닙니다."
   },
   "kpi": {
     "section": "핵심 성능 지표",
@@ -578,6 +591,31 @@
     "underMonitoring": "모니터링 중인 환자",
     "noBackend": "현재 백엔드에 이 지표의 데이터 소스가 없어 자리 표시자일 뿐 실제 측정값이 아닙니다.",
     "monitoringShare": "활성 모니터링 {total}명 중 {active}명"
+  },
+  "priority": {
+    "cardTitle": "우선 사례",
+    "cardSub": "모니터링 목록에서 가장 높은 우선순위 환자",
+    "liveTag": "실시간 모니터링 중",
+    "openFile": "임상 기록 열기",
+    "noPriority": "아직 모니터링 목록에 환자가 없습니다."
+  },
+  "queue": {
+    "cardTitle": "트리아지 대기열",
+    "cardSub": "위험 분류순으로 정렬됨",
+    "openAll": "환자 목록 열기",
+    "empty": "대기열에 환자가 없습니다.",
+    "today": "오늘"
+  },
+  "cal": {
+    "title": "알림 캘린더",
+    "prev": "이전 달",
+    "next": "다음 달",
+    "monthTotal": "이번 달 알림 {n}건",
+    "monthOpen": "미해결 {n}건",
+    "ackShare": "확인됨",
+    "selectDay": "날짜를 선택하면 해당 날짜의 알림을 볼 수 있습니다.",
+    "noAlertsDay": "이 날에는 알림이 없습니다.",
+    "recentNote": "API에서 수신한 최신 알림을 기준으로 작성되었습니다."
   },
   "critical": {
     "title": "위중한 사례",

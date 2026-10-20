@@ -66,11 +66,13 @@ export function ChartCanvas<TType extends ChartType = ChartType>({
     chartRef.current = new Chart<TType>(ctx, {
       type,
       data,
+      // Cast: chart.js types a spread of a generic partial options object too narrowly for
+      // this deliberate "defaults + caller overrides" merge.
       options: {
         responsive: true,
         maintainAspectRatio: false,
         ...options,
-      },
+      } as ChartConfiguration<TType>["options"],
     });
 
     return () => {
