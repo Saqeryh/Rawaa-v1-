@@ -117,21 +117,40 @@ export default function Overview() {
   const bioHist = useApi(() => api.biomarkerHistory(tok, selectedPatient!.id, bioId), [tok, selectedPatient?.id, bioId], { enabled: !!selectedPatient && !!bioId });
   const vitalHist = useApi(() => api.vitals(tok, selectedPatient!.id, vitalId), [tok, selectedPatient?.id, vitalId], { enabled: !!selectedPatient && !!vitalId });
 
-  // ---- critical-cases details (latest readings + device rows), capped to avoid an N+1 storm
+  // ---- triage queue order (real risk ranking) — needed early: the top banner and the
+  // critical-cases details below both read from this ordering, never from invented priority.
+  const rankOf = (p: PatientSummary) => (p.risk && p.risk.status === "ok" && p.risk.category_key ? RISK_RANK[p.risk.category_key] ?? 4 : 5);
+  const queuePatients = useMemo(() => [...patientsList].sort((a, b) => rankOf(a) - rankOf(b)).slice(0, 5), [patientsList]);
+
+  // ---- critical-cases details (latest readings + device rows), capped to avoid an N+1 storm.
+  // Queue patients are included so the top triage banner can show their real latest biomarkers.
   const criticalList = useMemo(() => patientsList.filter((p) =>
     p.risk?.category_key === "critical_thrombosis_risk" || !p.risk || p.risk.status !== "ok" || p.devices_connected < p.devices_total
   ), [patientsList]);
   const critIds = criticalList.slice(0, CRIT_DETAIL_CAP).map((p) => p.id).join("|");
+  const detailIds = useMemo(() => {
+    const ids = new Set(critIds ? critIds.split("|") : []);
+    queuePatients.forEach((p) => ids.add(p.id));
+    return [...ids].join("|");
+  }, [critIds, queuePatients]);
   const critDetails = useApi(async () => {
-    const ids = critIds ? critIds.split("|") : [];
+    const ids = detailIds ? detailIds.split("|") : [];
     const res = await Promise.allSettled(ids.map((id) => api.patient(tok, id)));
     const rows: PatientDetail[] = [];
     res.forEach((r) => { if (r.status === "fulfilled") rows.push(r.value.data); });
     return { data: rows, error: null, meta: null };
-  }, [tok, critIds], { enabled: critIds.length > 0 });
+  }, [tok, detailIds], { enabled: detailIds.length > 0 });
   const detailById = useMemo(() => new Map((critDetails.data ?? []).map((d) => [d.id, d])), [critDetails.data]);
-  const sensorRows = useMemo(() => (critDetails.data ?? []).flatMap((d) => d.devices.map((device) => ({ patientId: d.id, device }))), [critDetails.data]);
+  // Sensor monitoring stays scoped to the critical-cases list, not every fetched detail row.
+  const criticalIdSet = useMemo(() => new Set(criticalList.map((p) => p.id)), [criticalList]);
+  const sensorRows = useMemo(() => (critDetails.data ?? []).filter((d) => criticalIdSet.has(d.id)).flatMap((d) => d.devices.map((device) => ({ patientId: d.id, device }))), [critDetails.data, criticalIdSet]);
   const conceptualCount = sensorRows.filter((r) => r.device.conceptual).length;
+  /** Up to three key biomarkers per triage card: rule markers first, real latest readings only. */
+  const queueBioCfg = useMemo(() => {
+    const all = config?.biomarkers ?? [];
+    const rule = all.filter((b) => b.used_in_demo_rule);
+    return [...rule, ...all.filter((b) => !b.used_in_demo_rule)].slice(0, 3);
+  }, [config]);
 
   const latestReading = (id: string): Reading | null => {
     if (!ruleBioCfg) return null;
@@ -242,18 +261,8 @@ export default function Overview() {
     setCalCursor((c) => { const d = new Date(c.y, c.m + delta, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
   };
 
-  // ---- rail: queue + priority (real orderings)
-  const rankOf = (p: PatientSummary) => (p.risk && p.risk.status === "ok" && p.risk.category_key ? RISK_RANK[p.risk.category_key] ?? 4 : 5);
-  const queuePatients = useMemo(() => [...patientsList].sort((a, b) => rankOf(a) - rankOf(b)).slice(0, 5), [patientsList]);
+  // ---- rail: priority case (real ordering; the queue itself moved to the top banner)
   const priority = criticalList[0] ?? patientsList[0] ?? null;
-  const weekDays = useMemo(() => {
-    const n = new Date();
-    const df = new Intl.DateTimeFormat(LANG_META[lang].locale, { weekday: "short" });
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(n.getFullYear(), n.getMonth(), n.getDate() - n.getDay() + i);
-      return { iso: isoOf(d.getFullYear(), d.getMonth(), d.getDate()), dayNum: d.getDate(), weekday: df.format(d), isToday: d.getTime() === n.getTime() };
-    });
-  }, [lang]);
   const openAlertsShown = alertsList.filter((a) => a.status === "open").slice(0, 6);
 
   // ---- states
@@ -263,6 +272,63 @@ export default function Overview() {
 
   return (
     <>
+      {/* critical triage queue — horizontal touch-scrollable banner directly beneath the header.
+          Every card links to that patient's real file; biomarkers are the latest stored readings. */}
+      <section className="triage-banner" aria-labelledby="triage-h">
+        <div className="triage-banner-head">
+          <div className="row" style={{ flexWrap: "nowrap" }}>
+            <span className="circle-icon-lead" aria-hidden="true"><i className="ti ti-sort-ascending-2"></i></span>
+            <div className="stack-sm">
+              <h2 id="triage-h">{t("queue.cardTitle")}</h2>
+              <p className="xs muted">{t("queue.cardSub")}</p>
+            </div>
+          </div>
+          <Link className="xs" to="/doctor/patients">{t("queue.openAll")}</Link>
+        </div>
+        {list.loading && !list.data ? <LoadingBlock rows={2} />
+          : queuePatients.length === 0 ? <EmptyState>{t("queue.empty")}</EmptyState>
+          : (
+            <ul className="triage-scroll" role="list" aria-label={t("queue.cardTitle")}>
+              {queuePatients.map((p) => {
+                const detail = detailById.get(p.id);
+                const readings = queueBioCfg
+                  .map((b) => ({ b, r: detail?.latest_biomarkers[b.id] }))
+                  .filter(({ r }) => r && r.value != null && r.quality !== "missing");
+                const isCritical = p.risk?.status === "ok" && p.risk.category_key === "critical_thrombosis_risk";
+                // dot colour mirrors the real risk category (never colour alone — the badge text carries it too)
+                const dotColor = p.risk?.status === "ok" && p.risk.category_key ? RISK_COLORS[p.risk.category_key] ?? "var(--text-muted)" : "var(--text-muted)";
+                return (
+                  <li key={p.id} className="triage-item">
+                    <Link to={`/doctor/patients/${p.id}`} className="triage-card" aria-label={`${p.display_name} (${p.id})`}>
+                      <span className="triage-card-top">
+                        <span className="p-circle" aria-hidden="true">{p.display_name ? p.display_name[0] : "—"}</span>
+                        <span className="stack-sm" style={{ minWidth: 0 }}>
+                          <strong className="triage-name">{p.display_name}</strong>
+                          <span className="xs muted mono">{p.id}</span>
+                        </span>
+                      </span>
+                      <span className="triage-risk-row">
+                        <span className={`pulse-dot${isCritical ? "" : " steady"}`} style={{ background: dotColor }} aria-hidden="true"></span>
+                        <RiskBadge risk={p.risk} />
+                      </span>
+                      <span className="triage-bios">
+                        {readings.length === 0 ? <span className="xs muted">{t("common.noReading")}</span>
+                          : readings.map(({ b, r }) => (
+                            <span key={b.id} className="triage-bio" title={`${b.names[lang] ?? b.names.en} · ${fmt.dateTime(r!.measured_at)}`}>
+                              <span className="xs muted">{b.abbreviation}</span>
+                              <span className="num">{fmt.number(r!.value)}</span>
+                              <span className="xs muted">{r!.unit}</span>
+                            </span>
+                          ))}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+      </section>
+
       {/* greeting header — reference layout */}
       <div className="greeting-bar">
         <div className="greeting-text">
@@ -282,15 +348,15 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* key performance indicators — real summary numbers, explicit placeholders */}
+      {/* key performance indicators — three compact heroes + honest secondary strip */}
       <section className="kpi-region" role="region" aria-label={t("kpi.section")}>
         <div className="kpi-hero-quad">
+          <KpiHero icon="ti-clipboard-check" label={t("overview.needsReview")} value={fmt.number(stats.needs_review, 0)} />
           <KpiHero icon="ti-users" label={t("overview.totalPatients")} value={fmt.number(stats.total_patients, 0)} />
           <KpiHero icon="ti-bell" label={t("overview.openAlerts")} value={fmt.number(stats.open_alerts, 0)} />
-          <KpiHero icon="ti-clipboard-check" label={t("overview.needsReview")} value={fmt.number(stats.needs_review, 0)} />
-          <KpiHero icon="ti-alert-triangle" label={t("kpi.criticalCases")} value={fmt.number(stats.by_risk.critical_thrombosis_risk ?? 0, 0)} />
         </div>
         <div className="kpi-strip">
+          <Stat label={t("kpi.criticalCases")} value={fmt.number(stats.by_risk.critical_thrombosis_risk ?? 0, 0)} />
           <Stat label={t("overview.devices")} value={`${fmt.number(stats.devices.connected, 0)} / ${fmt.number(stats.devices.total, 0)}`} />
           <Stat label={t("kpi.connectedSensors")} value={fmt.number(stats.devices.connected, 0)} />
           <Stat label={t("kpi.disconnectedSensors")} value={fmt.number(Math.max(0, stats.devices.total - stats.devices.connected), 0)} />
@@ -331,7 +397,7 @@ export default function Overview() {
                 </button>
               ))}
             </div>
-            <div className="canvas-holder">
+            <div className="canvas-holder canvas-holder-lg">
               {!selectedPatient ? <EmptyState>{t("priority.noPriority")}</EmptyState>
                 : bioHist.loading && !bioHist.data ? <LoadingBlock rows={2} />
                 : bioHist.error && !bioHist.data ? <ErrorState error={bioHist.error} onRetry={bioHist.reload} />
@@ -432,7 +498,7 @@ export default function Overview() {
               <span className="metric-unit">{latestVital?.unit ?? vitalCfg?.unit ?? ""}</span>
               <span className="xs muted">{latestVital ? fmt.dateTime(latestVital.measured_at) : t("common.noReading")}</span>
             </div>
-            <div className="canvas-holder">
+            <div className="canvas-holder canvas-holder-lg">
               {!selectedPatient ? <EmptyState>{t("priority.noPriority")}</EmptyState>
                 : vitalHist.loading && !vitalHist.data ? <LoadingBlock rows={2} />
                 : vitalHist.error && !vitalHist.data ? <ErrorState error={vitalHist.error} onRetry={vitalHist.reload} />
@@ -564,41 +630,7 @@ export default function Overview() {
             ) : <EmptyState>{t("priority.noPriority")}</EmptyState>}
           </div>
 
-          {/* triage queue — real patients ordered by risk classification */}
-          <div className="queue-booking-card">
-            <div className="queue-header">
-              <h3>{t("queue.cardTitle")}</h3>
-              <span className="xs muted">{t("queue.cardSub")}</span>
-            </div>
-            <div className="week-strip" role="list" aria-label={t("overview.range")}>
-              {weekDays.map((d) => (
-                <div key={d.iso} role="listitem" className={`week-day${d.isToday ? " today" : ""}`} aria-label={d.isToday ? t("queue.today") : undefined}>
-                  <span className="week-day-name" aria-hidden="true">{d.weekday}</span>
-                  <span className="week-day-num" aria-hidden="true">{numCell(d.dayNum)}</span>
-                </div>
-              ))}
-            </div>
-            {list.loading && !list.data ? <LoadingBlock rows={3} />
-              : queuePatients.length === 0 ? <EmptyState>{t("queue.empty")}</EmptyState>
-              : (
-                <ul className="patient-queue-list">
-                  {queuePatients.map((p) => (
-                    <li key={p.id} className="patient-row-item">
-                      <Link to={`/doctor/patients/${p.id}`} className="p-lead">
-                        <span className="p-circle" aria-hidden="true">{p.display_name ? p.display_name[0] : "م"}</span>
-                        <span className="p-meta">
-                          <h5>{p.display_name}</h5>
-                          <span className="xs muted">{t(`status.monitoring.${p.monitoring_status}`)}</span>
-                        </span>
-                      </Link>
-                      <RiskBadge risk={p.risk} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            <Link className="btn primary" to="/doctor/patients">{t("queue.openAll")}</Link>
-          </div>
-
+          {/* triage queue card moved to the top banner — rail keeps priority + alerts only */}
           {/* open alerts — acknowledge without leaving the overview */}
           <section className="card" aria-labelledby="openalerts-h">
             <div className="card-title">

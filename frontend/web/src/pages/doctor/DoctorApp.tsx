@@ -39,7 +39,13 @@ function DoctorHeader() {
   return (
     <header className="doc-header">
       <NavLink to="/doctor" end className="brand-zone" aria-label={t("nav.overview")}>
-        <span className="brand-logo-badge" aria-hidden="true"><i className="ti ti-activity-heartbeat"></i></span>
+        {/* actual project logo instead of the placeholder heartbeat badge */}
+        <img
+          src="/rawaa.png"
+          alt="شعار رَواء"
+          className="brand-logo h-8 md:h-9 w-auto object-contain rounded-lg"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+        />
         <span className="brand-text">
           <span className="brand-title">{t("app.arabicName")} · ThrombiX</span>
           <span className="brand-subtitle">{t("app.tagline")}</span>
@@ -63,13 +69,6 @@ function DoctorHeader() {
           <i className="ti ti-bell" aria-hidden="true"></i>
           {openCount > 0 && <span className="notif-badge num" aria-hidden="true">{openCount > 9 ? "9+" : openCount}</span>}
         </NavLink>
-        <NavLink to="/doctor/settings" className="icon-circle-btn" title={t("nav.settings")} aria-label={t("nav.settings")}>
-          <i className="ti ti-settings" aria-hidden="true"></i>
-        </NavLink>
-        <div className="user-profile-summary">
-          <span className="user-avatar-small" aria-hidden="true"><i className="ti ti-user" style={{ fontSize: 16 }}></i></span>
-          <span className="user-name">{t("settings.roleDoctor")}</span>
-        </div>
         <button className="icon-circle-btn" onClick={signOut} title={t("common.signOut")} aria-label={t("common.signOut")}>
           <i className="ti ti-logout" aria-hidden="true"></i>
         </button>

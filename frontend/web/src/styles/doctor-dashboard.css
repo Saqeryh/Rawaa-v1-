@@ -45,6 +45,7 @@
   gap: 22px;
   color: var(--text-heading);
   font-family: "IBM Plex Sans Arabic", sans-serif;
+  overflow-x: hidden; /* no horizontal page overflow on any viewport */
 }
 
 /* ---- dark palette (deep purple / navy, never pure black) ---- */
@@ -103,19 +104,24 @@
   flex-wrap: wrap;
 }
 .brand-zone { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-heading); min-width: 0; }
-.brand-logo-badge {
-  width: 42px; height: 42px; border-radius: 14px; flex: 0 0 auto;
-  display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff;
-  background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
-  box-shadow: 0 8px 18px rgba(123, 97, 255, 0.35);
-}
+/* logo image: sizing comes from the h-8 / md:h-9 / w-auto / object-contain / rounded-lg
+   utility classes on the element (project ships no Tailwind, so they are defined here,
+   scoped to the dashboard so nothing else can pick them up) */
+.brand-logo { flex: 0 0 auto; }
+.dashboard-canvas .h-8 { height: 32px; }
+.dashboard-canvas .w-auto { width: auto; }
+.dashboard-canvas .object-contain { object-fit: contain; }
+.dashboard-canvas .rounded-lg { border-radius: 8px; }
+@media (min-width: 768px) { .dashboard-canvas .md\:h-9 { height: 36px; } }
 .brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; }
 .brand-subtitle { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
 
 .nav-pill-group {
-  display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 2px;
   background: var(--bg-canvas); border: 1px solid var(--border); border-radius: 50px; padding: 4px;
+  margin-inline: auto; /* centered in the header row */
+  max-width: 100%; min-width: 0;
 }
 .nav-pill-btn {
   display: flex; align-items: center; min-height: 38px; padding: 8px 14px; border-radius: 50px;
@@ -143,15 +149,6 @@
   background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; line-height: 1;
   display: grid; place-items: center; border: 2px solid var(--card-surface);
 }
-.user-profile-summary {
-  display: flex; align-items: center; gap: 10px; padding: 4px 14px 4px 4px; border-radius: 50px;
-  border: 1px solid var(--border); background: var(--card-surface); max-width: 190px;
-}
-.user-avatar-small {
-  width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto;
-  background: var(--primary-light); color: var(--primary); display: grid; place-items: center; font-weight: 700;
-}
-.user-name { font-size: 12px; font-weight: 700; color: var(--text-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ============================================================
    2. Greeting bar (reference: hello + subtitle + range + export)
@@ -169,16 +166,18 @@ button.btn-white-bubble:hover:not(:disabled) { color: var(--primary); border-col
 button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ============================================================
-   3. KPI region (hero quad + honest secondary strip)
+   3. KPI region (three compact heroes + honest secondary strip)
    ============================================================ */
 .kpi-region { display: flex; flex-direction: column; gap: 14px; }
-.kpi-hero-quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+/* 1 compact card per row on phones, 3 across from the sm breakpoint up */
+.kpi-hero-quad { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 640px) { .kpi-hero-quad { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 .kpi-strip .stat {
   background: var(--card-surface); border: 1px solid var(--border); border-radius: var(--radius-inner);
-  padding: 12px 14px; box-shadow: var(--shadow-subtle); min-width: 0;
+  padding: 10px 14px; box-shadow: var(--shadow-subtle); min-width: 0;
 }
-.kpi-strip .stat .value { font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+.kpi-strip .stat .value { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
 .kpi-strip .stat .label { font-size: 0.78rem; color: var(--text-muted); }
 /* long placeholder hints clamp to two lines; the full text stays on the element's title */
 .kpi-strip .stat .kpi-hint {
@@ -188,16 +187,18 @@ button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .soft-card {
   background: var(--card-surface); border: 1px solid var(--border); border-radius: var(--radius-card);
-  padding: 18px; box-shadow: var(--shadow-subtle);
-  display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-width: 0;
+  padding: 14px 16px; box-shadow: var(--shadow-subtle);
+  display: flex; flex-direction: column; justify-content: space-between; gap: 8px; min-width: 0;
 }
-.kpi-hero .metric-big-val { font-size: 26px; font-weight: 700; color: var(--text-heading); line-height: 1.1; display: block; }
+.kpi-hero { padding: 14px 16px; gap: 8px; }
+.kpi-hero .metric-big-val { font-size: 24px; font-weight: 700; color: var(--text-heading); line-height: 1.15; display: block; }
 .metric-label { display: block; font-size: 12px; color: var(--text-body); margin-top: 4px; }
 .card-top-row { display: flex; align-items: center; justify-content: space-between; }
 .circle-icon-lead {
-  width: 36px; height: 36px; border-radius: 50%; background: var(--bg-canvas); color: var(--primary);
-  display: grid; place-items: center; font-size: 18px; flex: 0 0 auto;
+  width: 34px; height: 34px; border-radius: 50%; background: var(--bg-canvas); color: var(--primary);
+  display: grid; place-items: center; font-size: 17px; flex: 0 0 auto;
 }
+.kpi-hero .circle-icon-lead { width: 30px; height: 30px; font-size: 15px; }
 
 /* ============================================================
    4. Main stream + right rail (reference composition)
@@ -205,8 +206,52 @@ button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 .overview-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 22px; align-items: start; }
 .main-stream { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .side-stream { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
-.stats-split-row { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; }
+/* stacked on phones; 12-column grid side-by-side from lg (calendar 5 / waveform 7) */
+.stats-split-row { display: flex; flex-direction: column; gap: 20px; }
+@media (min-width: 1024px) {
+  .stats-split-row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; align-items: start; }
+  .stats-split-row > .calendar-metric-card { grid-column: span 5; }
+  .stats-split-row > .waveform-card { grid-column: span 7; }
+}
 .bottom-split-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+
+/* ============================================================
+   4b. Horizontal triage-queue banner (top of the main content)
+   ============================================================ */
+.triage-banner {
+  background: var(--card-surface); border: 1px solid var(--border); border-radius: var(--radius-card);
+  padding: 16px 18px 14px; box-shadow: var(--shadow-subtle);
+  display: flex; flex-direction: column; gap: 12px; min-width: 0; overflow: hidden;
+}
+.triage-banner-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.triage-banner-head h2 { font-size: 1rem; font-weight: 700; color: var(--text-heading); }
+/* side-by-side cards with smooth touch scrolling + snap; never wraps or overflows the page */
+.triage-scroll {
+  list-style: none; margin: 0; padding: 2px 2px 8px;
+  display: flex; flex-direction: row; flex-wrap: nowrap; gap: 12px;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; scroll-behavior: smooth;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.triage-scroll::-webkit-scrollbar { display: none; }
+.triage-item { flex: 0 0 auto; width: min(260px, 78vw); scroll-snap-align: start; }
+.triage-card {
+  display: flex; flex-direction: column; gap: 10px; height: 100%;
+  min-height: 44px; padding: 12px 14px; box-sizing: border-box;
+  background: var(--bg-canvas); border: 1px solid var(--border); border-radius: var(--radius-inner);
+  text-decoration: none; color: inherit; cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.triage-card:hover, .triage-card:focus-visible {
+  border-color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-subtle);
+}
+.triage-card-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.triage-name { font-size: 13px; font-weight: 700; color: var(--text-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.triage-risk-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.triage-bios { display: flex; flex-direction: column; gap: 3px; }
+.triage-bio { display: flex; align-items: baseline; gap: 6px; font-size: 12px; color: var(--text-heading); }
+.triage-bio .num { font-weight: 700; }
+.pulse-dot.steady { animation: none; opacity: 0.9; }
 
 /* chart card */
 .chart-central-card {
@@ -225,20 +270,21 @@ button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 .filter-chip.active { background: var(--text-heading); color: var(--card-surface); }
 :root[data-theme="dark"] .filter-chip.active { background: var(--primary); color: #17142b; }
 .canvas-holder { position: relative; height: 190px; width: 100%; min-width: 0; }
+.canvas-holder-lg { height: 220px; }
 .canvas-holder figure, .canvas-holder .empty { height: 100%; }
 /* the global .chart-box is a fixed 220px; inside the holder it must fill the space instead */
 .canvas-holder .chart-box { height: 100%; }
 .canvas-holder .empty { display: flex; align-items: center; justify-content: center; }
 
-/* calendar card */
+/* calendar card — modern rounded container, touch-friendly days */
 .calendar-metric-card {
-  background: var(--card-surface); border: 1px solid var(--border); border-radius: var(--radius-card);
-  padding: 20px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 14px; min-width: 0;
+  background: var(--card-surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 16px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 14px; min-width: 0;
 }
 .cal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--text-heading); }
 .cal-nav { display: flex; align-items: center; gap: 6px; }
 .cal-nav-btn {
-  width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-canvas);
+  min-width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-canvas);
   color: var(--text-body); display: grid; place-items: center; cursor: pointer; font-size: 14px; font-family: inherit;
 }
 .cal-nav-btn:hover { color: var(--primary); border-color: var(--primary); }
@@ -246,7 +292,7 @@ button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; color: var(--text-muted); }
 .cal-dates-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .cal-day {
-  position: relative; height: 34px; border: 0; border-radius: 10px; background: var(--bg-canvas);
+  position: relative; min-height: 40px; border: 0; border-radius: 10px; background: var(--bg-canvas);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   font-size: 11.5px; font-weight: 600; font-family: inherit; color: var(--text-body); cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -265,10 +311,10 @@ button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 .cal-agenda { min-height: 36px; }
 .cal-agenda .timeline { max-height: 180px; overflow-y: auto; }
 
-/* vitals (waveform) card */
+/* vitals (waveform) card — ResponsiveContainer fills this box, 220px tall, resizes freely */
 .waveform-card {
   background: var(--card-surface); border: 1px solid var(--border); border-radius: var(--radius-card);
-  padding: 22px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 14px; min-width: 0;
+  padding: 18px 20px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 14px; min-width: 0;
 }
 .waveform-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .physio-value { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -302,31 +348,10 @@ button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 @media (prefers-reduced-motion: reduce) { .pulse-dot { animation: none; } }
 
-.queue-booking-card {
-  background: var(--card-surface); border: 1px solid var(--border); border-radius: var(--radius-card);
-  padding: 20px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 14px; min-width: 0;
-}
-.queue-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.week-day { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 0; border-radius: 12px; }
-.week-day-name { font-size: 10px; color: var(--text-muted); }
-.week-day-num { font-size: 13px; font-weight: 700; color: var(--text-heading); }
-.week-day.today { background: var(--primary-light); }
-.week-day.today .week-day-num { color: var(--primary); }
-
-.patient-queue-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.patient-row-item {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px;
-  border-radius: 12px; border: 1px solid transparent; transition: background 0.2s, border-color 0.2s;
-}
-.patient-row-item:hover { background: var(--bg-canvas); border-color: var(--border); }
-.p-lead { display: flex; align-items: center; gap: 10px; min-width: 0; text-decoration: none; color: inherit; }
 .p-circle {
   width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto;
   background: var(--primary-light); color: var(--primary); display: grid; place-items: center; font-size: 12px; font-weight: 700;
 }
-.p-meta { min-width: 0; }
-.p-meta h5 { font-size: 12px; font-weight: 700; color: var(--text-heading); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .p-badge-state { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
 .p-badge-state.danger { background: var(--danger-bg); color: var(--danger); }
 .p-badge-state.success { background: var(--success-bg); color: var(--success); }
@@ -335,27 +360,55 @@ button.btn-white-bubble:disabled { opacity: 0.5; cursor: not-allowed; }
 .sensor-list, .age-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 
 /* ============================================================
-   6. Responsive
+   6. Responsive — mobile-first: no horizontal overflow,
+      ≥44px touch targets, compact type, scrollable pill nav
    ============================================================ */
-@media (max-width: 1280px) {
-  .kpi-hero-quad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .stats-split-row { grid-template-columns: minmax(0, 1fr); }
-}
 @media (max-width: 1180px) {
   .overview-grid { grid-template-columns: minmax(0, 1fr); }
   .side-stream { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
 }
 @media (max-width: 900px) {
-  .doc-header { justify-content: center; }
-  .nav-pill-group { order: 3; width: 100%; justify-content: center; }
+  .doc-header { justify-content: center; gap: 10px; }
+  /* pill nav scrolls horizontally instead of wrapping or breaking the header */
+  .nav-pill-group {
+    order: 3; width: 100%; margin-inline: 0; justify-content: flex-start;
+    overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap;
+    white-space: nowrap; scroll-snap-type: x proximity;
+    scrollbar-width: none; -ms-overflow-style: none;
+    padding: 4px 2px;
+  }
+  .nav-pill-group::-webkit-scrollbar { display: none; }
+  .nav-pill-btn { flex: 0 0 auto; white-space: nowrap; scroll-snap-align: start; }
   .bottom-split-row { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 720px) {
-  .dashboard-canvas { width: 100%; margin: 12px auto; padding: 16px; border-radius: 20px; gap: 16px; }
+  .dashboard-canvas { width: 100%; margin: 12px auto; padding: 16px; border-radius: 20px; gap: 16px; overflow-x: hidden; }
+  .doc-header { padding: 8px 12px; border-radius: 18px; }
+  .brand-subtitle { display: none; } /* condensed brand on small screens */
+  .brand-title { font-size: 14px; }
   .greeting-text h1 { font-size: 20px; }
+  .greeting-text p { font-size: 12px; }
   .header-buttons { width: 100%; }
-  .kpi-hero-quad { grid-template-columns: minmax(0, 1fr); }
   .kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .side-stream { grid-template-columns: minmax(0, 1fr); }
-  .nav-pill-btn { padding: 8px 12px; font-size: 12px; }
+
+  /* readable mobile type: smaller base, normal from md up (dashboard-scoped) */
+  .metric-label, .triage-bio, .kpi-strip .stat .label { font-size: 11px; }
+  .dashboard-canvas .badge { font-size: 10px; padding: 2px 7px; }
+
+  /* ≥44×44px touch targets for every interactive control */
+  .nav-pill-btn { min-height: 44px; padding: 10px 14px; font-size: 12.5px; }
+  .icon-circle-btn { width: 44px; height: 44px; }
+  .btn-white-bubble { min-height: 44px; padding: 10px 14px; }
+  .filter-chip { min-height: 44px; padding: 8px 16px; font-size: 12px; }
+  .cal-nav-btn { min-width: 44px; height: 44px; }
+  .cal-day { min-height: 44px; font-size: 12px; }
+  .cal-dates-grid { gap: 2px; }
+  .calendar-metric-card { padding: 12px 10px; } /* wider day cells: ≥44px touch targets on phones */
+  .cal-weekdays { font-size: 10.5px; }
+  .triage-card { padding: 12px; }
+  .triage-item { width: min(240px, 80vw); }
+  .dashboard-canvas .btn { min-height: 44px; padding: 10px 16px; }
+  .dashboard-canvas .btn.sm { min-height: 44px; padding: 10px 16px; }
+  .dashboard-canvas .table-wrap { -webkit-overflow-scrolling: touch; }
 }
