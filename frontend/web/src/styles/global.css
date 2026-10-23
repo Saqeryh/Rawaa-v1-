@@ -552,8 +552,8 @@ footer.site { padding: var(--s6) 0; color: var(--muted); font-size: .875rem; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 1px solid rgb(255 255 255 / 22%);
   border-radius: 14px;
   background: rgb(255 255 255 / 10%);
@@ -561,6 +561,7 @@ footer.site { padding: var(--s6) 0; color: var(--muted); font-size: .875rem; }
   font: inherit;
   font-size: 20px;
   cursor: pointer;
+  text-decoration: none;
 }
 .ph-icon-button:focus-visible,
 .ph-search button:focus-visible,
@@ -568,16 +569,28 @@ footer.site { padding: var(--s6) 0; color: var(--muted); font-size: .875rem; }
   outline: 3px solid #e6dcff;
   outline-offset: 3px;
 }
+/* Brand identity: the transparent RAWA mark only — no pill, no text block. */
 .ph-brand {
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: 8px 12px;
-  border-radius: 15px;
-  background: rgb(235 231 255 / 55%);
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  text-decoration: none;
 }
-.ph-brand .brand { color: #24133f; font-size: .95rem; }
-.ph-brand .brand img { height: 34px; border-radius: 9px; }
+.ph-brand .ph-logo { height: 44px; width: auto; display: block; }
+/* Prominent route into the full biomarker monitor from the minimal Home. */
+.home-cta {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1rem;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgb(138 116 249 / 32%);
+}
+.home-cta svg { flex: 0 0 auto; }
+/* Every touch target in the patient phone is at least 44×44, incl. .btn.sm. */
+.phone-body .btn.sm { min-height: 44px; padding-inline: var(--s3); }
 .ph-badge {
   position: absolute;
   inset-block-start: -5px;
@@ -666,7 +679,6 @@ footer.site { padding: var(--s6) 0; color: var(--muted); font-size: .875rem; }
   .patient-header { padding-inline: 14px; }
   .ph-content { gap: 18px; }
   .ph-actions { gap: 5px; }
-  .ph-icon-button { width: 36px; height: 36px; }
   .ph-search { gap: 6px; }
   .ph-search button { padding-inline: 8px; }
   .ph-wave { width: calc(100% + 28px); margin-inline: -14px; }

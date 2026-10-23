@@ -1,19 +1,9 @@
 import { useContext, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { useI18n } from "../../i18n";
-import { Brand } from "../../components/shared";
 import { PatientContext } from "./context";
 
 /* ---- inline SVG icon primitives (project has no icon library) ---- */
-function MenuIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="currentColor"
-      strokeWidth={2} strokeLinecap="round" aria-hidden="true">
-      <line x1="4" y1="7" x2="20" y2="7" />
-      <line x1="4" y1="12" x2="20" y2="12" />
-      <line x1="4" y1="17" x2="20" y2="17" />
-    </svg>
-  );
-}
 function NotifIcon() {
   return (
     <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="currentColor"
@@ -23,13 +13,13 @@ function NotifIcon() {
     </svg>
   );
 }
-function HelpIcon() {
+/** Modern support headset (Lucide-style headphones): headband arc + two earcups. */
+function HeadsetIcon() {
   return (
     <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="currentColor"
       strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx={12} cy={12} r={9} />
-      <path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7" />
-      <path d="M12 17h.01" />
+      <path d="M3 15v-3a9 9 0 0 1 18 0v3" />
+      <path d="M21 16a2 2 0 0 1-2 2h-1a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h3zM3 16a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1H3z" />
     </svg>
   );
 }
@@ -37,7 +27,7 @@ function SearchIcon() {
   return (
     <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor"
       strokeWidth={2} strokeLinecap="round" aria-hidden="true">
-      <circle cx={11} cy={11} r={7} />
+      <circle cx={11} cy={11} r="7" />
       <path d="M20 20l-3-3" />
     </svg>
   );
@@ -49,18 +39,16 @@ function SearchIcon() {
  * PatientContext (loaded record) and just below it while the first request is
  * still in flight, so the context is read optionally: with a record it shows
  * the signed-in patient's own name, without one it shows the generic
- * greeting. Props add a small top-control strip and a footer without touching
- * the header's own layout.
+ * greeting. The top strip is deliberately minimal: the RAWA mark, the
+ * notifications route and support. Navigation lives in the bottom dock.
  */
 type HeaderProps = {
   badge?: ReactNode;
-  actions?: ReactNode;
   footer?: ReactNode;
 };
 
 export default function PatientHeader({
   badge,
-  actions,
   footer,
 }: HeaderProps) {
   const { t } = useI18n();
@@ -79,25 +67,14 @@ export default function PatientHeader({
       data-testid="patient-header"
     >
       <div className="ph-content">
-        {/* Top control strip: menu / notifications / support */}
+        {/* Top control strip: notifications / support */}
         <div className="ph-topbar">
-          {actions}
           <div className="ph-actions">
-            <button
+            <Link
               className="ph-icon-button"
-              type="button"
-              aria-label={t("patientApp.menu")}
-              onClick={undefined}
-            >
-              <MenuIcon />
-            </button>
-            <button
-              className="ph-icon-button"
-              type="button"
+              to="/patient/notifications"
               aria-label={t("patientApp.notifications")}
-              aria-expanded={open}
-              aria-controls="patient-search-results"
-              onClick={() => setOpen((v) => !v)}
+              data-testid="patient-header-notif"
             >
               <NotifIcon />
               {alertCount > 0 && (
@@ -105,23 +82,30 @@ export default function PatientHeader({
                   {alertCount}
                 </span>
               )}
-            </button>
+            </Link>
             <button
               className="ph-icon-button"
               type="button"
               aria-label={t("patientApp.support")}
-              onClick={undefined}
             >
-              <HelpIcon />
+              <HeadsetIcon />
             </button>
           </div>
           {badge}
         </div>
 
-        {/* Original RAWA logo in its own area */}
-        <div className="ph-brand" data-testid="patient-header-brand">
-          <Brand />
-        </div>
+        {/* RAWA mark — the heart+droplet cropped from the project's own artwork,
+            rendered transparent: no text title, no background block. */}
+        <Link
+          className="ph-brand"
+          to="/patient"
+          aria-label={t("nav.home")}
+          data-testid="patient-header-brand"
+        >
+          <svg className="ph-logo" viewBox="32 15 105 120" width={38} height={44} focusable="false" aria-hidden="true">
+            <image href="/rawaa.png" x="0" y="0" width="280" height="145" preserveAspectRatio="xMinYMid meet" />
+          </svg>
+        </Link>
 
         {/* Welcome area — live patient name from PatientDetail */}
         <div className="ph-welcome" data-testid="patient-header-welcome">

@@ -40,10 +40,10 @@ describe("patient app", () => {
 
   it("shows hs-CRP and never renders a missing value as zero", async () => {
     const p = patient(); p.latest_biomarkers.d_dimer = { biomarker_id: "d_dimer", value: null, unit: "µg/mL", measured_at: "2026-01-10T10:00:00Z", source: "simulator", quality: "missing" };
-    mockBackend(handlers(p)); go();
-    const crp = (await screen.findByText("hs-CRP")).closest("div.stack-sm")!;
+    mockBackend(handlers(p)); go("/patient/biomarkers"); // detailed readings now live on the dedicated page
+    const crp = (await screen.findByText("High-Sensitivity C-Reactive Protein")).closest("section")!;
     expect(within(crp as HTMLElement).getByText("1.9")).toBeInTheDocument();
-    const dd = screen.getAllByText("D-dimer")[0].closest("div.stack-sm")!;
+    const dd = screen.getByText("D-dimer", { selector: "h3" }).closest("section")!;
     expect(within(dd as HTMLElement).getByText("No reading")).toBeInTheDocument();
     expect(within(dd as HTMLElement).queryByText(/^0$/)).toBeNull();
   });

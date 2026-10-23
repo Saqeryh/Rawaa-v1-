@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { api } from "../../api/endpoints";
 import { useSession } from "../../auth/session";
 import { useI18n } from "../../i18n";
@@ -9,6 +9,7 @@ import { ErrorState, LoadingBlock } from "../../components/ui";
 import { PatientContext, type PatientCtx } from "./context";
 import Home from "./Home";
 import BiomarkersPage from "./BiomarkersPage";
+import NotificationsPage from "./NotificationsPage";
 import VitalsPage from "./VitalsPage";
 import Assistant from "./Assistant";
 import SettingsPage from "./SettingsPage";
@@ -85,16 +86,7 @@ export default function PatientApp() {
                 <main className="phone-body" id="main">
                   {/* The purple header is part of the Home page, so it scrolls away with
                       the content instead of eating half the phone screen forever. */}
-                  {atHome && (
-                    <PatientHeader
-                      actions={
-                        <div className="row" style={{ gap: 8 }}>
-                          <Link className="btn sm" to="/patient/settings">{t("nav.settings")}</Link>
-                          <Link className="btn sm" to="/patient/assistant">{t("nav.taps")}</Link>
-                        </div>
-                      }
-                    />
-                  )}
+                  {atHome && <PatientHeader />}
                   {!detail.data && detail.loading && (
                     <div className="stack" style={{ alignItems: "center", textAlign: "center", padding: "var(--s6) 0" }} role="status" aria-live="polite">
                       <img
@@ -111,6 +103,7 @@ export default function PatientApp() {
                     <Routes>
                       <Route index element={<Home />} />
                       <Route path="biomarkers" element={<BiomarkersPage />} />
+                      <Route path="notifications" element={<NotificationsPage />} />
                       <Route path="vitals" element={<VitalsPage />} />
                       <Route path="assistant" element={<Assistant />} />
                       <Route path="settings" element={<SettingsPage />} />
